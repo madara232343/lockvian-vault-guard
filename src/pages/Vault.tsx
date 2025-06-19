@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -58,7 +57,7 @@ const Vault = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<VaultItem | null>(null);
-  const [showPassword, setShowPassword] = useState<Record<string, string | boolean>>({});
+  const [showPassword, setShowPassword] = useState<Record<string, string>>({});
   const [masterKey] = useState(() => {
     let key = localStorage.getItem('vault_master_key');
     if (!key) {
@@ -250,7 +249,7 @@ const Vault = () => {
 
   const togglePasswordVisibility = async (itemId: string, item: VaultItem) => {
     if (showPassword[itemId]) {
-      setShowPassword(prev => ({ ...prev, [itemId]: false }));
+      setShowPassword(prev => ({ ...prev, [itemId]: '' }));
     } else {
       try {
         const decryptedPassword = await decrypt(item.encrypted_password, masterKey);
@@ -327,11 +326,11 @@ const Vault = () => {
 
   return (
     <Layout>
-      <div className="p-6 space-y-6">
+      <div className="p-4 lg:p-6 space-y-6 animate-fade-in">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">Password Vault</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold text-white">Password Vault</h1>
             <p className="text-slate-400 mt-1">Securely store and manage your passwords</p>
           </div>
           <Dialog open={showAddDialog || !!editingItem} onOpenChange={(open) => {
@@ -344,13 +343,13 @@ const Vault = () => {
             <DialogTrigger asChild>
               <Button 
                 onClick={() => setShowAddDialog(true)}
-                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-200 hover:scale-105 shadow-lg"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Password
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-md">
+            <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-md mx-4">
               <DialogHeader>
                 <DialogTitle>{editingItem ? 'Edit Password' : 'Add New Password'}</DialogTitle>
                 <DialogDescription className="text-slate-400">
@@ -364,7 +363,7 @@ const Vault = () => {
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="bg-slate-700 border-slate-600"
+                    className="bg-slate-700 border-slate-600 focus:border-cyan-500 transition-colors duration-200"
                     placeholder="e.g., Gmail Account"
                     required
                   />
@@ -376,7 +375,7 @@ const Vault = () => {
                     id="website"
                     value={formData.website_url}
                     onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-                    className="bg-slate-700 border-slate-600"
+                    className="bg-slate-700 border-slate-600 focus:border-cyan-500 transition-colors duration-200"
                     placeholder="https://example.com"
                   />
                 </div>
@@ -387,7 +386,7 @@ const Vault = () => {
                     id="username"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    className="bg-slate-700 border-slate-600"
+                    className="bg-slate-700 border-slate-600 focus:border-cyan-500 transition-colors duration-200"
                     placeholder="your.email@example.com"
                   />
                 </div>
@@ -400,7 +399,7 @@ const Vault = () => {
                       type="password"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="bg-slate-700 border-slate-600 flex-1"
+                      className="bg-slate-700 border-slate-600 flex-1 focus:border-cyan-500 transition-colors duration-200"
                       placeholder="Enter password"
                       required
                     />
@@ -413,7 +412,7 @@ const Vault = () => {
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
                   <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                    <SelectTrigger className="bg-slate-700 border-slate-600">
+                    <SelectTrigger className="bg-slate-700 border-slate-600 focus:border-cyan-500">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700">
@@ -432,7 +431,7 @@ const Vault = () => {
                     id="notes"
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="bg-slate-700 border-slate-600"
+                    className="bg-slate-700 border-slate-600 focus:border-cyan-500 transition-colors duration-200"
                     placeholder="Additional notes (optional)"
                     rows={3}
                   />
@@ -476,11 +475,11 @@ const Vault = () => {
                   placeholder="Search passwords..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-slate-700 border-slate-600"
+                  className="pl-10 bg-slate-700 border-slate-600 focus:border-cyan-500 transition-colors duration-200"
                 />
               </div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full md:w-48 bg-slate-700 border-slate-600">
+                <SelectTrigger className="w-full md:w-48 bg-slate-700 border-slate-600 focus:border-cyan-500">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
@@ -538,19 +537,19 @@ const Vault = () => {
               const CategoryIcon = categoryInfo.icon;
               
               return (
-                <Card key={item.id} className="bg-slate-800/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/70 transition-colors">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
+                <Card key={item.id} className="bg-slate-800/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-200 hover:scale-[1.02]">
+                  <CardContent className="p-4 lg:p-6">
+                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
                       <div className="flex items-start space-x-4 flex-1">
                         <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
                           <CategoryIcon className="h-6 w-6 text-white" />
                         </div>
                         
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center space-x-3">
-                            <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                        <div className="flex-1 space-y-2 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-lg font-semibold text-white truncate">{item.title}</h3>
                             {item.is_favorite && (
-                              <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                              <Star className="h-4 w-4 text-yellow-400 fill-current flex-shrink-0" />
                             )}
                             <Badge variant={
                               item.password_strength >= 80 ? 'default' :
@@ -567,15 +566,15 @@ const Vault = () => {
                           </div>
                           
                           {item.website_url && (
-                            <p className="text-sm text-slate-400">{item.website_url}</p>
+                            <p className="text-sm text-slate-400 truncate">{item.website_url}</p>
                           )}
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                          <div className="space-y-2">
                             {item.username && (
                               <div className="flex items-center justify-between">
                                 <span className="text-sm text-slate-400">Username:</span>
                                 <div className="flex items-center space-x-2">
-                                  <span className="text-sm text-white font-mono">{item.username}</span>
+                                  <span className="text-sm text-white font-mono truncate max-w-32">{item.username}</span>
                                   <Button
                                     size="sm"
                                     variant="ghost"
@@ -591,7 +590,7 @@ const Vault = () => {
                               <span className="text-sm text-slate-400">Password:</span>
                               <div className="flex items-center space-x-2">
                                 <span className="text-sm text-white font-mono">
-                                  {showPassword[item.id] && typeof showPassword[item.id] === 'string' ? 
+                                  {showPassword[item.id] ? 
                                     showPassword[item.id] : 
                                     '••••••••••••'
                                   }
@@ -601,7 +600,7 @@ const Vault = () => {
                                   variant="ghost"
                                   onClick={() => togglePasswordVisibility(item.id, item)}
                                 >
-                                  {showPassword[item.id] && typeof showPassword[item.id] === 'string' ? 
+                                  {showPassword[item.id] ? 
                                     <EyeOff className="h-3 w-3" /> : 
                                     <Eye className="h-3 w-3" />
                                   }
@@ -619,7 +618,7 @@ const Vault = () => {
                         </div>
                       </div>
                       
-                      <div className="flex items-center space-x-2 ml-4">
+                      <div className="flex items-center space-x-2 lg:ml-4">
                         <Button
                           size="sm"
                           variant="ghost"

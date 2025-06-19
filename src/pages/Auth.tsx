@@ -16,13 +16,11 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Sign In Form
   const [signInData, setSignInData] = useState({
     email: '',
     password: ''
   });
   
-  // Sign Up Form
   const [signUpData, setSignUpData] = useState({
     email: '',
     password: '',
@@ -30,7 +28,6 @@ const Auth = () => {
     fullName: ''
   });
   
-  // Reset Password
   const [resetEmail, setResetEmail] = useState('');
   const [activeTab, setActiveTab] = useState('signin');
 
@@ -100,11 +97,11 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-6">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4 lg:p-6">
+      <div className="w-full max-w-md animate-fade-in">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center text-cyan-400 hover:text-cyan-300 mb-6">
+          <Link to="/" className="inline-flex items-center text-cyan-400 hover:text-cyan-300 mb-6 transition-colors duration-200">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
@@ -112,21 +109,21 @@ const Auth = () => {
             <img 
               src="/lovable-uploads/7cf47063-e479-491c-aea6-f5519798ef73.png" 
               alt="Lockvian Logo" 
-              className="w-12 h-12"
+              className="w-12 h-12 animate-scale-in"
             />
-            <span className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
               Lockvian
             </span>
           </div>
-          <p className="text-slate-400">Secure your digital life with zero-knowledge encryption</p>
+          <p className="text-slate-400 text-sm lg:text-base">Secure your digital life with zero-knowledge encryption</p>
         </div>
 
-        <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+        <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm shadow-2xl">
           <CardHeader className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-scale-in">
               <Shield className="h-8 w-8 text-white" />
             </div>
-            <CardTitle className="text-white text-2xl">Welcome to Lockvian</CardTitle>
+            <CardTitle className="text-white text-xl lg:text-2xl">Welcome to Lockvian</CardTitle>
             <CardDescription className="text-slate-400">
               Your next-generation password manager
             </CardDescription>
@@ -134,14 +131,23 @@ const Auth = () => {
           
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3 bg-slate-700">
-                <TabsTrigger value="signin" className="text-slate-300 data-[state=active]:text-white">
+              <TabsList className="grid w-full grid-cols-3 bg-slate-700/50">
+                <TabsTrigger 
+                  value="signin" 
+                  className="text-slate-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 transition-all duration-200"
+                >
                   Sign In
                 </TabsTrigger>
-                <TabsTrigger value="signup" className="text-slate-300 data-[state=active]:text-white">
+                <TabsTrigger 
+                  value="signup" 
+                  className="text-slate-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 transition-all duration-200"
+                >
                   Sign Up
                 </TabsTrigger>
-                <TabsTrigger value="reset" className="text-slate-300 data-[state=active]:text-white">
+                <TabsTrigger 
+                  value="reset" 
+                  className="text-slate-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/20 data-[state=active]:to-blue-500/20 transition-all duration-200"
+                >
                   Reset
                 </TabsTrigger>
               </TabsList>
@@ -158,7 +164,7 @@ const Auth = () => {
                         placeholder="Enter your email"
                         value={signInData.email}
                         onChange={(e) => setSignInData({...signInData, email: e.target.value})}
-                        className="pl-10 bg-slate-700 border-slate-600 text-white"
+                        className="pl-10 bg-slate-700/50 border-slate-600 text-white focus:border-cyan-500 transition-colors duration-200"
                         required
                       />
                     </div>
@@ -174,13 +180,13 @@ const Auth = () => {
                         placeholder="Enter your password"
                         value={signInData.password}
                         onChange={(e) => setSignInData({...signInData, password: e.target.value})}
-                        className="pl-10 pr-10 bg-slate-700 border-slate-600 text-white"
+                        className="pl-10 pr-10 bg-slate-700/50 border-slate-600 text-white focus:border-cyan-500 transition-colors duration-200"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3 text-slate-400 hover:text-slate-300"
+                        className="absolute right-3 top-3 text-slate-400 hover:text-slate-300 transition-colors duration-200"
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
@@ -189,7 +195,7 @@ const Auth = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-200 hover:scale-105 shadow-lg"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Signing In...' : 'Sign In'}
@@ -209,7 +215,7 @@ const Auth = () => {
                         placeholder="Enter your full name"
                         value={signUpData.fullName}
                         onChange={(e) => setSignUpData({...signUpData, fullName: e.target.value})}
-                        className="pl-10 bg-slate-700 border-slate-600 text-white"
+                        className="pl-10 bg-slate-700/50 border-slate-600 text-white focus:border-cyan-500 transition-colors duration-200"
                         required
                       />
                     </div>
@@ -225,7 +231,7 @@ const Auth = () => {
                         placeholder="Enter your email"
                         value={signUpData.email}
                         onChange={(e) => setSignUpData({...signUpData, email: e.target.value})}
-                        className="pl-10 bg-slate-700 border-slate-600 text-white"
+                        className="pl-10 bg-slate-700/50 border-slate-600 text-white focus:border-cyan-500 transition-colors duration-200"
                         required
                       />
                     </div>
@@ -241,14 +247,14 @@ const Auth = () => {
                         placeholder="Create a strong password"
                         value={signUpData.password}
                         onChange={(e) => setSignUpData({...signUpData, password: e.target.value})}
-                        className="pl-10 pr-10 bg-slate-700 border-slate-600 text-white"
+                        className="pl-10 pr-10 bg-slate-700/50 border-slate-600 text-white focus:border-cyan-500 transition-colors duration-200"
                         required
                         minLength={8}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3 text-slate-400 hover:text-slate-300"
+                        className="absolute right-3 top-3 text-slate-400 hover:text-slate-300 transition-colors duration-200"
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
@@ -265,7 +271,7 @@ const Auth = () => {
                         placeholder="Confirm your password"
                         value={signUpData.confirmPassword}
                         onChange={(e) => setSignUpData({...signUpData, confirmPassword: e.target.value})}
-                        className="pl-10 bg-slate-700 border-slate-600 text-white"
+                        className="pl-10 bg-slate-700/50 border-slate-600 text-white focus:border-cyan-500 transition-colors duration-200"
                         required
                       />
                     </div>
@@ -273,7 +279,7 @@ const Auth = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-200 hover:scale-105 shadow-lg"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Creating Account...' : 'Create Account'}
@@ -293,7 +299,7 @@ const Auth = () => {
                         placeholder="Enter your email"
                         value={resetEmail}
                         onChange={(e) => setResetEmail(e.target.value)}
-                        className="pl-10 bg-slate-700 border-slate-600 text-white"
+                        className="pl-10 bg-slate-700/50 border-slate-600 text-white focus:border-cyan-500 transition-colors duration-200"
                         required
                       />
                     </div>
@@ -301,7 +307,7 @@ const Auth = () => {
                   
                   <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-200 hover:scale-105 shadow-lg"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Sending Reset Email...' : 'Send Reset Email'}
@@ -312,7 +318,7 @@ const Auth = () => {
           </CardContent>
         </Card>
 
-        <p className="text-center text-slate-400 text-sm mt-6">
+        <p className="text-center text-slate-400 text-xs lg:text-sm mt-6">
           By signing up, you agree to our Terms of Service and Privacy Policy
         </p>
       </div>
