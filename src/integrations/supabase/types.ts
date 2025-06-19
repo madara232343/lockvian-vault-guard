@@ -9,7 +9,197 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      breach_alerts: {
+        Row: {
+          breach_date: string | null
+          breach_source: string
+          created_at: string | null
+          email: string
+          id: string
+          is_acknowledged: boolean | null
+          severity: string | null
+          user_id: string | null
+        }
+        Insert: {
+          breach_date?: string | null
+          breach_source: string
+          created_at?: string | null
+          email: string
+          id?: string
+          is_acknowledged?: boolean | null
+          severity?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          breach_date?: string | null
+          breach_source?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          is_acknowledged?: boolean | null
+          severity?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      password_shares: {
+        Row: {
+          access_count: number | null
+          access_token: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          is_accessed: boolean | null
+          max_access_count: number | null
+          shared_by: string | null
+          shared_with_email: string | null
+          vault_id: string | null
+        }
+        Insert: {
+          access_count?: number | null
+          access_token: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          is_accessed?: boolean | null
+          max_access_count?: number | null
+          shared_by?: string | null
+          shared_with_email?: string | null
+          vault_id?: string | null
+        }
+        Update: {
+          access_count?: number | null
+          access_token?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          is_accessed?: boolean | null
+          max_access_count?: number | null
+          shared_by?: string | null
+          shared_with_email?: string | null
+          vault_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "password_shares_vault_id_fkey"
+            columns: ["vault_id"]
+            isOneToOne: false
+            referencedRelation: "password_vault"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      password_vault: {
+        Row: {
+          breach_detected: boolean | null
+          category: string | null
+          created_at: string | null
+          encrypted_notes: string | null
+          encrypted_password: string
+          id: string
+          is_favorite: boolean | null
+          last_used: string | null
+          password_strength: number | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          username: string | null
+          website_url: string | null
+        }
+        Insert: {
+          breach_detected?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          encrypted_notes?: string | null
+          encrypted_password: string
+          id?: string
+          is_favorite?: boolean | null
+          last_used?: string | null
+          password_strength?: number | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          username?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          breach_detected?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          encrypted_notes?: string | null
+          encrypted_password?: string
+          id?: string
+          is_favorite?: boolean | null
+          last_used?: string | null
+          password_strength?: number | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          username?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: string
+          subscription_tier: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          subscription_tier?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          subscription_tier?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      security_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,8 +1,8 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Lock, Brain, Zap, Eye, Users, Smartphone, Globe } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
@@ -24,12 +24,16 @@ const Index = () => {
             <a href="#features" className="hover:text-cyan-400 transition-colors">Features</a>
             <a href="#security" className="hover:text-cyan-400 transition-colors">Security</a>
             <a href="#pricing" className="hover:text-cyan-400 transition-colors">Pricing</a>
-            <Button variant="outline" className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900">
-              Sign In
-            </Button>
-            <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600">
-              Get Started
-            </Button>
+            <Link to="/auth">
+              <Button variant="outline" className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900">
+                Sign In
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600">
+                Get Started
+              </Button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -51,10 +55,12 @@ const Index = () => {
             Your passwords, secured by tomorrow's technology today.
           </p>
           <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 px-8 py-4 text-lg">
-              <Shield className="mr-2 h-5 w-5" />
-              Start Free Trial
-            </Button>
+            <Link to="/auth">
+              <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 px-8 py-4 text-lg">
+                <Shield className="mr-2 h-5 w-5" />
+                Start Free Trial
+              </Button>
+            </Link>
             <Button size="lg" variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800 px-8 py-4 text-lg">
               <Eye className="mr-2 h-5 w-5" />
               Watch Demo
@@ -214,10 +220,12 @@ const Index = () => {
               with zero-knowledge privacy.
             </p>
             <div className="flex flex-col md:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 px-8 py-4 text-lg">
-                <Shield className="mr-2 h-5 w-5" />
-                Start Free Trial
-              </Button>
+              <Link to="/auth">
+                <Button size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 px-8 py-4 text-lg">
+                  <Shield className="mr-2 h-5 w-5" />
+                  Start Free Trial
+                </Button>
+              </Link>
               <Button size="lg" variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800 px-8 py-4 text-lg">
                 Contact Sales
               </Button>
