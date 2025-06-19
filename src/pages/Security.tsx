@@ -392,26 +392,31 @@ const Security = () => {
               </div>
             ) : (
               <div className="space-y-3">
-                {securityLogs.map((log) => (
-                  <div key={log.id} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
-                      <div>
-                        <p className="text-white font-medium">
-                          {log.action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          {new Date(log.created_at).toLocaleString()}
+                {securityLogs.map((log) => {
+                  // Type assertion for details object
+                  const details = log.details as { ip_address?: string } | null;
+                  
+                  return (
+                    <div key={log.id} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                        <div>
+                          <p className="text-white font-medium">
+                            {log.action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {new Date(log.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-slate-400">
+                          {details?.ip_address || 'Unknown IP'}
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-slate-400">
-                        {log.details?.ip_address || 'Unknown IP'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>

@@ -58,7 +58,7 @@ const Vault = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<VaultItem | null>(null);
-  const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
+  const [showPassword, setShowPassword] = useState<Record<string, string | boolean>>({});
   const [masterKey] = useState(() => {
     let key = localStorage.getItem('vault_master_key');
     if (!key) {
@@ -591,7 +591,7 @@ const Vault = () => {
                               <span className="text-sm text-slate-400">Password:</span>
                               <div className="flex items-center space-x-2">
                                 <span className="text-sm text-white font-mono">
-                                  {showPassword[item.id] ? 
+                                  {showPassword[item.id] && typeof showPassword[item.id] === 'string' ? 
                                     showPassword[item.id] : 
                                     '••••••••••••'
                                   }
@@ -601,7 +601,7 @@ const Vault = () => {
                                   variant="ghost"
                                   onClick={() => togglePasswordVisibility(item.id, item)}
                                 >
-                                  {showPassword[item.id] ? 
+                                  {showPassword[item.id] && typeof showPassword[item.id] === 'string' ? 
                                     <EyeOff className="h-3 w-3" /> : 
                                     <Eye className="h-3 w-3" />
                                   }

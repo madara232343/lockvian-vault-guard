@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -54,16 +54,18 @@ const Settings = () => {
       
       if (error) throw error;
       return data;
-    },
-    onSuccess: (data) => {
-      if (data) {
-        setProfileData({
-          full_name: data.full_name || '',
-          avatar_url: data.avatar_url || ''
-        });
-      }
     }
   });
+
+  // Update profile data when query succeeds
+  useEffect(() => {
+    if (profile) {
+      setProfileData({
+        full_name: profile.full_name || '',
+        avatar_url: profile.avatar_url || ''
+      });
+    }
+  }, [profile]);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: typeof profileData) => {
