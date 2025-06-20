@@ -1,78 +1,87 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import { EncryptionProvider } from "./contexts/EncryptionContext";
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import Auth from "./pages/Auth";
-import Vault from "./pages/Vault";
-import Generator from "./pages/Generator";
-import Security from "./pages/Security";
-import Sharing from "./pages/Sharing";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { EncryptionProvider } from "@/contexts/EncryptionContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import Layout from "@/components/Layout";
+import Index from "@/pages/Index";
+import Auth from "@/pages/Auth";
+import Dashboard from "@/pages/Dashboard";
+import Vault from "@/pages/Vault";
+import Generator from "@/pages/Generator";
+import Security from "@/pages/Security";
+import Sharing from "@/pages/Sharing";
+import Settings from "@/pages/Settings";
+import NotFound from "@/pages/NotFound";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <EncryptionProvider>
+    <AuthProvider>
+      <EncryptionProvider>
+        <TooltipProvider>
+          <Toaster />
+          <BrowserRouter>
             <Routes>
+              {/* Public Routes */}
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              
+              {/* Protected Routes */}
               <Route path="/dashboard" element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
                 </ProtectedRoute>
               } />
               <Route path="/vault" element={
                 <ProtectedRoute>
-                  <Vault />
+                  <Layout>
+                    <Vault />
+                  </Layout>
                 </ProtectedRoute>
               } />
               <Route path="/generator" element={
                 <ProtectedRoute>
-                  <Generator />
+                  <Layout>
+                    <Generator />
+                  </Layout>
                 </ProtectedRoute>
               } />
               <Route path="/security" element={
                 <ProtectedRoute>
-                  <Security />
+                  <Layout>
+                    <Security />
+                  </Layout>
                 </ProtectedRoute>
               } />
               <Route path="/sharing" element={
                 <ProtectedRoute>
-                  <Sharing />
+                  <Layout>
+                    <Sharing />
+                  </Layout>
                 </ProtectedRoute>
               } />
               <Route path="/settings" element={
                 <ProtectedRoute>
-                  <Settings />
+                  <Layout>
+                    <Settings />
+                  </Layout>
                 </ProtectedRoute>
               } />
+              
+              {/* 404 Route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </EncryptionProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </EncryptionProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
