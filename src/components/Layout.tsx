@@ -30,6 +30,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isNavExpanded, setIsNavExpanded] = useState(false);
 
   const menuItems = [
     { path: '/', icon: Home, label: 'Home' },
@@ -48,53 +49,64 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      {/* Top Navigation */}
-      <header className="bg-slate-800/95 backdrop-blur-sm border-b border-slate-700 sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      {/* Single Top Navigation */}
+      <header className="bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Shield className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-white">QuantumVault</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+                VaultVian
+              </span>
             </Link>
 
-            {/* Desktop Navigation - Hover Expandable Menu */}
-            <div className="hidden md:flex items-center">
-              <div className="relative group">
+            {/* Center Navigation - Hover Expandable */}
+            <div className="hidden md:flex items-center justify-center flex-1">
+              <div 
+                className="relative"
+                onMouseEnter={() => setIsNavExpanded(true)}
+                onMouseLeave={() => setIsNavExpanded(false)}
+              >
                 <Button
-                  variant="ghost"
-                  className="text-white border border-slate-600 hover:border-emerald-500 transition-all duration-300"
+                  variant="outline"
+                  className="bg-slate-800/50 border-slate-600 text-white hover:bg-slate-700/50 transition-all duration-300"
                 >
-                  <Menu className="h-5 w-5 mr-2" />
+                  <Menu className="h-4 w-4 mr-2" />
                   Navigation
                 </Button>
                 
                 {/* Expandable Menu */}
-                <div className="absolute top-full left-0 mt-2 w-64 bg-slate-800 border border-slate-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                  <div className="p-2">
-                    {menuItems.map((item) => {
-                      const Icon = item.icon;
-                      const active = isActive(item.path);
-                      return (
-                        <Link
-                          key={item.path}
-                          to={item.path}
-                          className={`
-                            flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 mb-1
-                            ${active 
-                              ? 'bg-emerald-600 text-white shadow-lg' 
-                              : 'text-slate-300 hover:text-white hover:bg-slate-700'
-                            }
-                          `}
-                        >
-                          <Icon className="h-5 w-5" />
-                          <span className="font-medium">{item.label}</span>
-                        </Link>
-                      );
-                    })}
+                <div className={`
+                  absolute top-full left-1/2 transform -translate-x-1/2 mt-2 transition-all duration-300 origin-top
+                  ${isNavExpanded ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}
+                `}>
+                  <div className="bg-slate-800/95 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-2xl p-2 min-w-[280px]">
+                    <div className="grid grid-cols-2 gap-1">
+                      {menuItems.map((item) => {
+                        const Icon = item.icon;
+                        const active = isActive(item.path);
+                        return (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            className={`
+                              flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200
+                              ${active 
+                                ? 'bg-gradient-to-r from-emerald-500 to-blue-500 text-white shadow-lg' 
+                                : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                              }
+                            `}
+                          >
+                            <Icon className="h-4 w-4" />
+                            <span className="font-medium text-sm">{item.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -114,8 +126,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               {/* User Menu */}
               <div className="hidden md:flex items-center space-x-3">
-                <div className="flex items-center space-x-3 bg-slate-700 rounded-lg px-3 py-2">
-                  <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
+                <div className="flex items-center space-x-3 bg-slate-800/50 rounded-xl px-3 py-2 border border-slate-700/50">
+                  <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-full flex items-center justify-center">
                     <User className="h-4 w-4 text-white" />
                   </div>
                   <div className="text-sm">
@@ -162,18 +174,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Mobile Sidebar */}
       <aside className={`
-        fixed top-0 right-0 z-50 h-full w-80 bg-slate-800 transform transition-transform duration-300
+        fixed top-0 right-0 z-50 h-full w-80 bg-slate-900/95 backdrop-blur-xl transform transition-transform duration-300
         ${isMobileSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
-        md:hidden
+        md:hidden border-l border-slate-700/50
       `}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-slate-700">
+          <div className="flex items-center justify-between p-6 border-b border-slate-700/50">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-lg flex items-center justify-center">
                 <Shield className="h-4 w-4 text-white" />
               </div>
-              <span className="text-lg font-bold text-white">QuantumVault</span>
+              <span className="text-lg font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+                VaultVian
+              </span>
             </div>
             <Button
               variant="ghost"
@@ -195,10 +209,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   key={item.path}
                   to={item.path}
                   className={`
-                    flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors
+                    flex items-center space-x-3 px-4 py-3 rounded-xl transition-colors
                     ${active 
-                      ? 'bg-emerald-600 text-white' 
-                      : 'text-slate-300 hover:text-white hover:bg-slate-700'
+                      ? 'bg-gradient-to-r from-emerald-500 to-blue-500 text-white' 
+                      : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                     }
                   `}
                   onClick={() => setIsMobileSidebarOpen(false)}
@@ -211,9 +225,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </nav>
 
           {/* User Profile */}
-          <div className="p-4 border-t border-slate-700">
-            <div className="flex items-center space-x-3 p-3 bg-slate-700 rounded-lg mb-3">
-              <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+          <div className="p-4 border-t border-slate-700/50">
+            <div className="flex items-center space-x-3 p-3 bg-slate-800/50 rounded-xl mb-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-full flex items-center justify-center">
                 <User className="h-5 w-5 text-white" />
               </div>
               <div>
@@ -243,53 +257,53 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {children}
       </main>
 
-      {/* Chatbot */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Responsive Chatbot */}
+      <div className="fixed bottom-4 right-4 z-50">
         <Button
           onClick={() => setIsChatOpen(!isChatOpen)}
-          size="lg"
-          className="w-14 h-14 rounded-full bg-emerald-600 hover:bg-emerald-700 shadow-xl"
+          className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 shadow-xl border-2 border-white/20"
         >
-          <MessageCircle className="h-6 w-6" />
+          <MessageCircle className="h-5 w-5 md:h-6 md:w-6" />
         </Button>
         
         {isChatOpen && (
-          <div className="absolute bottom-16 right-0 w-80 h-96 bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl animate-in slide-in-from-bottom-5">
-            <div className="flex items-center justify-between p-4 border-b border-slate-700">
-              <h3 className="text-white font-semibold">AI Assistant</h3>
+          <div className="absolute bottom-16 right-0 w-72 sm:w-80 h-80 sm:h-96 bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-slate-700/50 shadow-2xl animate-in slide-in-from-bottom-5">
+            <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
+              <h3 className="text-white font-semibold">VaultVian AI Assistant</h3>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsChatOpen(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-white h-6 w-6"
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            <div className="p-4 h-64 overflow-y-auto">
-              <div className="bg-slate-700 rounded-lg p-3 mb-4">
+            <div className="p-4 h-48 sm:h-64 overflow-y-auto">
+              <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-lg p-3 mb-4 border border-emerald-500/30">
                 <p className="text-white text-sm">
-                  👋 Hello! I'm your AI assistant. How can I help you today?
+                  👋 Hello! I'm your VaultVian AI assistant. How can I help you today?
                 </p>
               </div>
-              <div className="text-slate-400 text-xs">
-                <p>I can help with:</p>
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  <li>Password security tips</li>
-                  <li>Feature explanations</li>
-                  <li>Account management</li>
-                  <li>Technical support</li>
+              <div className="text-slate-400 text-xs space-y-2">
+                <p className="font-medium text-slate-300">I can help with:</p>
+                <ul className="space-y-1">
+                  <li>• Password security tips</li>
+                  <li>• Feature explanations</li>
+                  <li>• Account management</li>
+                  <li>• Technical support</li>
+                  <li>• Plan upgrades</li>
                 </ul>
               </div>
             </div>
-            <div className="p-4 border-t border-slate-700">
+            <div className="p-4 border-t border-slate-700/50">
               <div className="flex gap-2">
                 <input 
                   type="text" 
                   placeholder="Type your message..."
-                  className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-slate-400 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  className="flex-1 bg-slate-800/50 border border-slate-600 rounded-lg px-3 py-2 text-white placeholder-slate-400 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                 />
-                <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+                <Button size="sm" className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 px-3">
                   Send
                 </Button>
               </div>
