@@ -8,192 +8,227 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error?: any }>;
+  signUp: (email: string, password: string, fullName?: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error?: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-const cleanupAuthState = () => {
-  Object.keys(localStorage).forEach((key) => {
-    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-      localStorage.removeItem(key);
-    }
-  });
-  Object.keys(sessionStorage || {}).forEach((key) => {
-    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-      sessionStorage.removeItem(key);
-    }
-  });
-};
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
+    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
-        
-        if (event === 'SIGNED_IN') {
-          setTimeout(() => {
-            logSecurityEvent('user_signed_in');
-          }, 0);
-        }
-        
-        if (event === 'SIGNED_OUT') {
-          cleanupAuthState();
-        }
-        
         setLoading(false);
+
+        // Handle different auth events
+        if (event === 'SIGNED_IN') {
+          toast({
+            title: "Welcome to the Quantum Realm! 🚀",
+            description: "You've successfully entered your secure dimension.",
+          });
+        } else if (event === 'SIGNED_OUT') {
+          toast({
+            title: "Portal Closed",
+            description: "You've safely exited the quantum dimension.",
+          });
+        } else if (event === 'PASSWORD_RECOVERY') {
+          toast({
+            title: "Recovery Portal Sent! 📧",
+            description: "Check your email for quantum key restoration instructions.",
+          });
+        }
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // THEN check for existing session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        } else {
+          setSession(session);
+          setUser(session?.user ?? null);
+        }
+      } catch (error) {
+        console.error('Session check failed:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getInitialSession();
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [toast]);
 
-  const logSecurityEvent = async (action: string, details?: any) => {
+  const signIn = async (email: string, password: string) => {
     try {
-      await supabase.from('security_logs').insert({
-        user_id: user?.id,
-        action,
-        ip_address: null,
-        user_agent: navigator.userAgent,
-        details: details || {}
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
       });
+
+      if (error) {
+        console.error('Sign in error:', error);
+        let errorMessage = "Access to quantum realm denied.";
+        
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = "Invalid quantum credentials. Please verify your neural key.";
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = "Please confirm your quantum identity via email first.";
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = "Too many portal attempts. Please wait before trying again.";
+        }
+
+        toast({
+          variant: "destructive",
+          title: "Portal Access Failed",
+          description: errorMessage,
+        });
+        return { error };
+      }
+
+      return { error: null };
     } catch (error) {
-      console.error('Failed to log security event:', error);
+      console.error('Unexpected sign in error:', error);
+      toast({
+        variant: "destructive",
+        title: "Quantum Error",
+        description: "An unexpected error occurred. Please try again.",
+      });
+      return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName?: string) => {
     try {
-      cleanupAuthState();
+      setLoading(true);
+      const redirectUrl = `${window.location.origin}/`;
       
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: redirectUrl,
           data: {
-            full_name: fullName
+            full_name: fullName?.trim() || '',
           }
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Sign up error:', error);
+        let errorMessage = "Failed to create quantum portal.";
+        
+        if (error.message.includes('already registered')) {
+          errorMessage = "This quantum signature already exists. Try signing in instead.";
+        } else if (error.message.includes('Password should be')) {
+          errorMessage = "Your neural key must be at least 6 characters long.";
+        } else if (error.message.includes('signup disabled')) {
+          errorMessage = "New portal creation is temporarily disabled.";
+        }
 
-      if (data.user) {
         toast({
-          title: "Account created successfully!",
-          description: "Please check your email to verify your account.",
+          variant: "destructive",
+          title: "Portal Creation Failed",
+          description: errorMessage,
         });
-        return { error: null };
+        return { error };
+      }
+
+      if (data.user && !data.session) {
+        toast({
+          title: "Quantum Portal Created! 📧",
+          description: "Please check your email to activate your quantum access.",
+        });
       }
 
       return { error: null };
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Unexpected sign up error:', error);
       toast({
-        title: "Sign up failed",
-        description: error.message,
         variant: "destructive",
+        title: "Quantum Error",
+        description: "An unexpected error occurred. Please try again.",
       });
       return { error };
-    }
-  };
-
-  const signIn = async (email: string, password: string) => {
-    try {
-      cleanupAuthState();
-      
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-      }
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      if (data.user) {
-        toast({
-          title: "Welcome back!",
-          description: "You have been signed in successfully.",
-        });
-        window.location.href = '/dashboard';
-        return { error: null };
-      }
-
-      return { error: null };
-    } catch (error: any) {
-      toast({
-        title: "Sign in failed",
-        description: error.message,
-        variant: "destructive",
-      });
-      return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
-      cleanupAuthState();
-      await supabase.auth.signOut({ scope: 'global' });
-      toast({
-        title: "Signed out",
-        description: "You have been signed out successfully.",
-      });
-      window.location.href = '/';
-    } catch (error: any) {
-      console.error('Sign out error:', error);
-      window.location.href = '/';
+      setLoading(true);
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        toast({
+          variant: "destructive",
+          title: "Portal Exit Failed",
+          description: "Unable to safely exit quantum dimension.",
+        });
+      }
+    } catch (error) {
+      console.error('Unexpected sign out error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const resetPassword = async (email: string) => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth?reset=true`,
+      setLoading(true);
+      const redirectUrl = `${window.location.origin}/auth?reset=true`;
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: redirectUrl,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Password reset error:', error);
+        let errorMessage = "Failed to send recovery portal.";
+        
+        if (error.message.includes('not found')) {
+          errorMessage = "No quantum signature found for this email.";
+        }
 
-      toast({
-        title: "Reset email sent",
-        description: "Check your email for password reset instructions.",
-      });
+        toast({
+          variant: "destructive",
+          title: "Recovery Failed",
+          description: errorMessage,
+        });
+        return { error };
+      }
+
+      // Success handled by auth state change listener
       return { error: null };
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Unexpected password reset error:', error);
       toast({
-        title: "Reset failed",
-        description: error.message,
         variant: "destructive",
+        title: "Quantum Error",
+        description: "An unexpected error occurred. Please try again.",
       });
       return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -201,11 +236,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     session,
     loading,
-    signUp,
     signIn,
+    signUp,
     signOut,
     resetPassword,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
