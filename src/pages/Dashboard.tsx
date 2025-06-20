@@ -12,10 +12,13 @@ import {
   AlertTriangle, 
   Plus, 
   TrendingUp, 
-  Clock,
-  Users,
   Eye,
-  Zap
+  Zap,
+  Users,
+  Activity,
+  Clock,
+  Star,
+  ArrowRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -88,155 +91,189 @@ const Dashboard = () => {
 
   const securityScore = Math.max(0, 100 - (stats.weakPasswords * 10) - (stats.breachAlerts * 20));
 
+  const statCards = [
+    {
+      title: "Security Score",
+      value: `${securityScore}%`,
+      description: securityScore >= 80 ? 'Excellent' : securityScore >= 60 ? 'Good' : 'Needs Attention',
+      icon: Shield,
+      gradient: securityScore >= 80 ? 'from-green-500 to-emerald-500' : securityScore >= 60 ? 'from-yellow-500 to-orange-500' : 'from-red-500 to-pink-500',
+      trend: '+5%'
+    },
+    {
+      title: "Total Passwords",
+      value: stats.totalPasswords.toString(),
+      description: "Stored securely",
+      icon: Key,
+      gradient: 'from-blue-500 to-cyan-500',
+      trend: '+2'
+    },
+    {
+      title: "Weak Passwords",
+      value: stats.weakPasswords.toString(),
+      description: "Need updating",
+      icon: AlertTriangle,
+      gradient: 'from-orange-500 to-red-500',
+      trend: '-1'
+    },
+    {
+      title: "Breach Alerts",
+      value: (breachAlerts?.length || 0).toString(),
+      description: "Active alerts",
+      icon: Zap,
+      gradient: 'from-purple-500 to-pink-500',
+      trend: '0'
+    }
+  ];
+
+  const quickActions = [
+    {
+      title: "Generate Password",
+      description: "Create strong passwords",
+      icon: Zap,
+      gradient: "from-green-500 to-emerald-500",
+      path: "/generator"
+    },
+    {
+      title: "Add Password",
+      description: "Store new credentials",
+      icon: Plus,
+      gradient: "from-blue-500 to-cyan-500",
+      path: "/vault"
+    },
+    {
+      title: "Security Check",
+      description: "Analyze vulnerabilities",
+      icon: Shield,
+      gradient: "from-red-500 to-orange-500",
+      path: "/security"
+    },
+    {
+      title: "Share Securely",
+      description: "Collaborate safely",
+      icon: Users,
+      gradient: "from-purple-500 to-pink-500",
+      path: "/sharing"
+    }
+  ];
+
   return (
     <Layout>
-      <div className="p-4 lg:p-6 space-y-6 animate-fade-in">
+      <div className="p-4 lg:p-8 space-y-8 animate-fade-in">
         {/* Welcome Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 animate-fade-up">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-white">
+            <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">
               Welcome back, {user?.email?.split('@')[0]}! 👋
             </h1>
-            <p className="text-slate-400 mt-1">
+            <p className="text-slate-400 text-lg">
               Your digital security command center
             </p>
           </div>
-          <Link to="/vault">
-            <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-200 hover:scale-105 shadow-lg">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Password
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link to="/vault">
+              <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 hover:scale-105 shadow-lg h-12 px-6">
+                <Plus className="mr-2 h-5 w-5" />
+                Add Password
+              </Button>
+            </Link>
+            <Link to="/generator">
+              <Button variant="outline" className="h-12 px-6 border-slate-600 hover:bg-slate-800/50">
+                <Zap className="mr-2 h-5 w-5" />
+                Generate
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        {/* Security Overview Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-200 hover:scale-105">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-400">Security Score</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-3">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-200 ${
-                  securityScore >= 80 ? 'bg-green-500/20 text-green-400' :
-                  securityScore >= 60 ? 'bg-yellow-500/20 text-yellow-400' :
-                  'bg-red-500/20 text-red-400'
-                }`}>
-                  <Shield className="h-6 w-6" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-white">{securityScore}%</div>
-                  <p className="text-xs text-slate-400">
-                    {securityScore >= 80 ? 'Excellent' : securityScore >= 60 ? 'Good' : 'Needs Attention'}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-200 hover:scale-105">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-400">Total Passwords</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
-                  <Key className="h-6 w-6 text-blue-400" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-white">{stats.totalPasswords}</div>
-                  <p className="text-xs text-slate-400">Stored securely</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-200 hover:scale-105">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-400">Weak Passwords</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="h-6 w-6 text-orange-400" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-white">{stats.weakPasswords}</div>
-                  <p className="text-xs text-slate-400">Need updating</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-200 hover:scale-105">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-400">Breach Alerts</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-red-400" />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-white">{breachAlerts?.length || 0}</div>
-                  <p className="text-xs text-slate-400">Active alerts</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {statCards.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <Card key={stat.title} className="group bg-slate-900/50 border-slate-700/50 backdrop-blur-sm hover:bg-slate-800/70 transition-all duration-500 hover:scale-105 hover:shadow-2xl animate-fade-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-slate-400">{stat.title}</p>
+                      <div className="space-y-1">
+                        <p className="text-3xl font-bold text-white">{stat.value}</p>
+                        <p className="text-sm text-slate-400">{stat.description}</p>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <TrendingUp className="h-3 w-3 text-green-400" />
+                        <span className="text-xs text-green-400">{stat.trend}</span>
+                      </div>
+                    </div>
+                    <div className={`w-14 h-14 bg-gradient-to-r ${stat.gradient} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 relative`}>
+                      <Icon className="h-7 w-7 text-white" />
+                      <div className="absolute inset-0 bg-white/10 rounded-xl blur-sm group-hover:blur-lg transition-all duration-300"></div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Passwords */}
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Recent Passwords - Takes 2 columns */}
+          <Card className="xl:col-span-2 bg-slate-900/50 border-slate-700/50 backdrop-blur-sm animate-fade-up" style={{ animationDelay: '0.4s' }}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-white">Recent Passwords</CardTitle>
+                  <CardTitle className="text-white text-xl flex items-center space-x-2">
+                    <Key className="h-5 w-5" />
+                    <span>Recent Passwords</span>
+                  </CardTitle>
                   <CardDescription className="text-slate-400">
                     Your latest saved credentials
                   </CardDescription>
                 </div>
                 <Link to="/vault">
-                  <Button variant="ghost" size="sm" className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10">
+                  <Button variant="ghost" size="sm" className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-all duration-300">
                     <Eye className="mr-2 h-4 w-4" />
                     View All
+                    <ArrowRight className="ml-1 h-3 w-3" />
                   </Button>
                 </Link>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {vaultItems?.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Key className="h-12 w-12 text-slate-600 mx-auto mb-4" />
-                    <p className="text-slate-400 mb-4">No passwords saved yet</p>
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-slate-700/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Key className="h-8 w-8 text-slate-500" />
+                    </div>
+                    <p className="text-slate-400 mb-4 text-lg">No passwords saved yet</p>
                     <Link to="/vault">
-                      <Button size="sm" className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600">
+                      <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600">
                         <Plus className="mr-2 h-4 w-4" />
                         Add Your First Password
                       </Button>
                     </Link>
                   </div>
                 ) : (
-                  vaultItems?.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors duration-200">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
-                          <Key className="h-4 w-4 text-white" />
+                  vaultItems?.map((item, index) => (
+                    <div key={item.id} className="group flex items-center justify-between p-4 bg-slate-800/30 rounded-xl hover:bg-slate-700/50 transition-all duration-300 hover:scale-[1.02]" style={{ animationDelay: `${index * 0.05}s` }}>
+                      <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center relative">
+                          <Key className="h-6 w-6 text-white" />
+                          <div className="absolute inset-0 bg-white/10 rounded-xl blur-sm"></div>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-white">{item.title}</p>
-                          <p className="text-xs text-slate-400">{item.website_url || 'No URL'}</p>
+                          <p className="font-medium text-white group-hover:text-cyan-400 transition-colors">{item.title}</p>
+                          <p className="text-sm text-slate-400">{item.website_url || 'No URL'}</p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant={item.password_strength >= 80 ? 'default' : item.password_strength >= 60 ? 'secondary' : 'destructive'}>
+                      <div className="flex items-center space-x-3">
+                        <Badge variant={item.password_strength >= 80 ? 'default' : item.password_strength >= 60 ? 'secondary' : 'destructive'} className="font-medium">
                           {item.password_strength >= 80 ? 'Strong' : item.password_strength >= 60 ? 'Medium' : 'Weak'}
                         </Badge>
                         {item.is_favorite && (
-                          <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                          <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                         )}
                       </div>
                     </div>
@@ -247,35 +284,30 @@ const Dashboard = () => {
           </Card>
 
           {/* Security Alerts */}
-          <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+          <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm animate-fade-up" style={{ animationDelay: '0.5s' }}>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-white">Security Alerts</CardTitle>
-                  <CardDescription className="text-slate-400">
-                    Real-time breach monitoring
-                  </CardDescription>
-                </div>
-                <Link to="/security">
-                  <Button variant="ghost" size="sm" className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10">
-                    <TrendingUp className="mr-2 h-4 w-4" />
-                    View All
-                  </Button>
-                </Link>
-              </div>
+              <CardTitle className="text-white text-xl flex items-center space-x-2">
+                <Activity className="h-5 w-5" />
+                <span>Security Alerts</span>
+              </CardTitle>
+              <CardDescription className="text-slate-400">
+                Real-time threat monitoring
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {breachAlerts?.length === 0 ? (
                   <div className="text-center py-8">
-                    <Shield className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                    <div className="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Shield className="h-8 w-8 text-green-400" />
+                    </div>
                     <p className="text-green-400 font-medium mb-2">All Clear!</p>
                     <p className="text-slate-400 text-sm">No security threats detected</p>
                   </div>
                 ) : (
-                  breachAlerts?.map((alert) => (
-                    <div key={alert.id} className="flex items-start space-x-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
-                      <AlertTriangle className="h-5 w-5 text-red-400 mt-0.5" />
+                  breachAlerts?.map((alert, index) => (
+                    <div key={alert.id} className="flex items-start space-x-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl" style={{ animationDelay: `${index * 0.1}s` }}>
+                      <AlertTriangle className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm font-medium text-white">
                           Breach detected: {alert.breach_source}
@@ -296,42 +328,35 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
+        <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm animate-fade-up" style={{ animationDelay: '0.6s' }}>
           <CardHeader>
-            <CardTitle className="text-white">Quick Actions</CardTitle>
+            <CardTitle className="text-white text-xl flex items-center space-x-2">
+              <Zap className="h-5 w-5" />
+              <span>Quick Actions</span>
+            </CardTitle>
             <CardDescription className="text-slate-400">
               Common tasks and tools
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Link to="/generator">
-                <Button variant="outline" className="h-20 flex-col space-y-2 border-slate-600 hover:bg-slate-700/50 hover:border-cyan-500/50 transition-all duration-200 hover:scale-105 w-full">
-                  <Zap className="h-6 w-6 text-cyan-400" />
-                  <span className="text-sm">Generate Password</span>
-                </Button>
-              </Link>
-              
-              <Link to="/vault">
-                <Button variant="outline" className="h-20 flex-col space-y-2 border-slate-600 hover:bg-slate-700/50 hover:border-blue-500/50 transition-all duration-200 hover:scale-105 w-full">
-                  <Plus className="h-6 w-6 text-blue-400" />
-                  <span className="text-sm">Add Password</span>
-                </Button>
-              </Link>
-              
-              <Link to="/security">
-                <Button variant="outline" className="h-20 flex-col space-y-2 border-slate-600 hover:bg-slate-700/50 hover:border-green-500/50 transition-all duration-200 hover:scale-105 w-full">
-                  <Shield className="h-6 w-6 text-green-400" />
-                  <span className="text-sm">Security Check</span>
-                </Button>
-              </Link>
-              
-              <Link to="/sharing">
-                <Button variant="outline" className="h-20 flex-col space-y-2 border-slate-600 hover:bg-slate-700/50 hover:border-purple-500/50 transition-all duration-200 hover:scale-105 w-full">
-                  <Users className="h-6 w-6 text-purple-400" />
-                  <span className="text-sm">Share Securely</span>
-                </Button>
-              </Link>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {quickActions.map((action, index) => {
+                const Icon = action.icon;
+                return (
+                  <Link key={action.title} to={action.path}>
+                    <Card className="group bg-slate-800/30 border-slate-700/50 hover:bg-slate-700/50 transition-all duration-300 hover:scale-105 cursor-pointer" style={{ animationDelay: `${index * 0.1}s` }}>
+                      <CardContent className="p-6 text-center">
+                        <div className={`w-14 h-14 bg-gradient-to-r ${action.gradient} rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 relative`}>
+                          <Icon className="h-7 w-7 text-white" />
+                          <div className="absolute inset-0 bg-white/10 rounded-xl blur-sm group-hover:blur-lg transition-all duration-300"></div>
+                        </div>
+                        <h3 className="font-medium text-white mb-2 group-hover:text-cyan-400 transition-colors">{action.title}</h3>
+                        <p className="text-sm text-slate-400">{action.description}</p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
