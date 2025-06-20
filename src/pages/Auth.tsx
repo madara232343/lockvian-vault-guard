@@ -1,415 +1,245 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Label } from '@/components/ui/label';
-import { Shield, Lock, Eye, EyeOff, Mail, User, ArrowLeft, Zap, Brain, Key } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Shield, Mail, Lock, User, Eye, EyeOff, ArrowRight, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Auth = () => {
-  const { user, signIn, signUp, resetPassword, loading } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const [signInData, setSignInData] = useState({
-    email: '',
-    password: ''
-  });
-  
-  const [signUpData, setSignUpData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    fullName: ''
-  });
-  
-  const [resetEmail, setResetEmail] = useState('');
-  const [activeTab, setActiveTab] = useState('signin');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const { user, signIn, signUp } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (searchParams.get('reset') === 'true') {
-      setActiveTab('reset');
+    if (user) {
+      navigate('/dashboard');
     }
-  }, [searchParams]);
+  }, [user, navigate]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-cyan-950 flex items-center justify-center">
-        <div className="flex items-center space-x-4 text-white">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-          <span className="text-xl">Accessing Quantum Dimension...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      await signIn(signInData.email, signInData.password);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setLoading(true);
+    setError('');
+    setSuccess('');
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (signUpData.password !== signUpData.confirmPassword) {
-      alert('Passwords do not match');
+    if (!isLogin && password !== confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
       return;
     }
-    
-    if (signUpData.password.length < 8) {
-      alert('Password must be at least 8 characters long');
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setLoading(false);
       return;
     }
-    
-    setIsLoading(true);
-    
+
     try {
-      await signUp(signUpData.email, signUpData.password, signUpData.fullName);
+      if (isLogin) {
+        const { error } = await signIn(email, password);
+        if (error) {
+          setError(error.message);
+        } else {
+          navigate('/dashboard');
+        }
+      } else {
+        const { error } = await signUp(email, password);
+        if (error) {
+          setError(error.message);
+        } else {
+          setSuccess('Account created successfully! Please check your email to verify your account.');
+        }
+      }
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleReset = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      await resetPassword(resetEmail);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const features = [
+    'Military-grade encryption',
+    'Zero-knowledge architecture',
+    'Cross-platform sync',
+    'Secure password sharing',
+    'Dark web monitoring',
+    '24/7 expert support'
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-cyan-950 overflow-hidden relative">
-      {/* Revolutionary Animated Background */}
-      <div className="fixed inset-0 opacity-30">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-cyan-500/20 to-pink-500/20 animate-gradient-x"></div>
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
-      
-      <div className="relative flex min-h-screen">
-        {/* Left Side - Revolutionary Branding */}
-        <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12">
-          <div className="max-w-lg text-center">
-            <Link to="/" className="inline-flex items-center text-purple-400 hover:text-purple-300 mb-12 transition-all duration-300 hover:scale-105 group">
-              <ArrowLeft className="mr-2 h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-              Return to Reality
-            </Link>
-            
-            <div className="mb-12">
-              <div className="flex items-center justify-center space-x-4 mb-8">
-                <div className="relative group">
-                  <div className="w-20 h-20 bg-gradient-to-r from-purple-500 via-cyan-500 to-pink-500 rounded-2xl flex items-center justify-center relative overflow-hidden">
-                    <Shield className="h-10 w-10 text-white relative z-10" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-cyan-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  </div>
-                  <div className="absolute inset-0 bg-purple-500/30 rounded-2xl blur-2xl animate-pulse"></div>
-                </div>
+    <div className="min-h-screen bg-slate-900 flex">
+      {/* Left Side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-600 via-blue-600 to-purple-700 p-12 flex-col justify-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="relative z-10">
+          <div className="flex items-center space-x-3 mb-8">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <Shield className="h-7 w-7 text-white" />
+            </div>
+            <span className="text-3xl font-bold text-white">QuantumVault</span>
+          </div>
+          
+          <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
+            Secure Your Digital Life
+          </h1>
+          <p className="text-xl text-white/90 mb-8 leading-relaxed">
+            Experience next-generation password security with quantum-level encryption and AI-powered protection.
+          </p>
+          
+          <div className="space-y-4">
+            {features.map((feature, index) => (
+              <div key={index} className="flex items-center space-x-3">
+                <CheckCircle className="h-5 w-5 text-white" />
+                <span className="text-white font-medium">{feature}</span>
               </div>
-              
-              <h1 className="text-5xl font-black text-white mb-6 leading-tight">
-                Enter The
-                <span className="block bg-gradient-to-r from-purple-400 via-cyan-400 to-pink-400 bg-clip-text text-transparent">
-                  Quantum Realm
-                </span>
-              </h1>
-              
-              <p className="text-xl text-white/70 mb-8 leading-relaxed">
-                Transcend digital boundaries and access security beyond human comprehension.
-              </p>
-            </div>
-
-            <div className="space-y-8">
-              {[
-                { icon: Brain, text: "Neural-linked Authentication", gradient: "from-purple-500 to-pink-500" },
-                { icon: Zap, text: "Quantum Speed Access", gradient: "from-cyan-500 to-blue-500" },
-                { icon: Shield, text: "Interdimensional Security", gradient: "from-green-500 to-emerald-500" }
-              ].map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <div key={index} className="flex items-center space-x-4 group hover:scale-105 transition-transform duration-300">
-                    <div className={`w-14 h-14 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300 relative overflow-hidden`}>
-                      <Icon className="h-7 w-7 text-white" />
-                      <div className="absolute inset-0 bg-white/20 blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                    </div>
-                    <span className="text-lg text-white/80 group-hover:text-white transition-colors duration-300">
-                      {feature.text}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* Right Side - Auth Portal */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
-          <div className="w-full max-w-md">
-            {/* Mobile Header */}
-            <div className="lg:hidden text-center mb-8">
-              <Link to="/" className="inline-flex items-center text-purple-400 hover:text-purple-300 mb-6 transition-colors duration-300">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Return to Reality
-              </Link>
-              <div className="flex items-center justify-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 via-cyan-500 to-pink-500 rounded-xl flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-white" />
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-cyan-400 to-pink-400 bg-clip-text text-transparent">
-                  QuantumVault
-                </span>
-              </div>
+      {/* Right Side - Auth Form */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex items-center justify-center space-x-3 mb-8">
+            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center">
+              <Shield className="h-6 w-6 text-white" />
             </div>
-
-            <Card className="relative overflow-hidden bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-cyan-500/10 to-pink-500/10"></div>
-              
-              <CardHeader className="text-center pb-6 relative z-10">
-                <div className="w-24 h-24 bg-gradient-to-r from-purple-500 via-cyan-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-8 relative overflow-hidden group">
-                  <Key className="h-12 w-12 text-white group-hover:rotate-12 transition-transform duration-300" />
-                  <div className="absolute inset-0 bg-white/20 blur-xl group-hover:blur-2xl transition-all duration-300"></div>
-                </div>
-                <CardTitle className="text-white text-3xl font-black mb-3">Access Portal</CardTitle>
-                <CardDescription className="text-white/70 text-lg">
-                  Enter your quantum credentials
-                </CardDescription>
-              </CardHeader>
-              
-              <CardContent className="relative z-10">
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-3 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-1">
-                    <TabsTrigger 
-                      value="signin" 
-                      className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/30 data-[state=active]:to-cyan-500/30 transition-all duration-300 rounded-lg"
-                    >
-                      Portal Entry
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="signup" 
-                      className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500/30 data-[state=active]:to-pink-500/30 transition-all duration-300 rounded-lg"
-                    >
-                      Join Realm
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="reset" 
-                      className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500/30 data-[state=active]:to-purple-500/30 transition-all duration-300 rounded-lg"
-                    >
-                      Recovery
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="signin" className="space-y-6 mt-8">
-                    <form onSubmit={handleSignIn} className="space-y-6">
-                      <div className="space-y-3">
-                        <Label htmlFor="signin-email" className="text-white/90 font-medium text-lg">Quantum Email</Label>
-                        <div className="relative group">
-                          <Mail className="absolute left-4 top-4 h-5 w-5 text-white/40 group-focus-within:text-purple-400 transition-colors" />
-                          <Input
-                            id="signin-email"
-                            type="email"
-                            placeholder="your@quantum.email"
-                            value={signInData.email}
-                            onChange={(e) => setSignInData({...signInData, email: e.target.value})}
-                            className="pl-12 h-14 bg-black/20 border border-white/20 text-white placeholder:text-white/40 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition-all duration-300 rounded-xl text-lg"
-                            required
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <Label htmlFor="signin-password" className="text-white/90 font-medium text-lg">Neural Key</Label>
-                        <div className="relative group">
-                          <Lock className="absolute left-4 top-4 h-5 w-5 text-white/40 group-focus-within:text-purple-400 transition-colors" />
-                          <Input
-                            id="signin-password"
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Enter your neural key"
-                            value={signInData.password}
-                            onChange={(e) => setSignInData({...signInData, password: e.target.value})}
-                            className="pl-12 pr-12 h-14 bg-black/20 border border-white/20 text-white placeholder:text-white/40 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition-all duration-300 rounded-xl text-lg"
-                            required
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-4 top-4 text-white/40 hover:text-white/80 transition-colors duration-300"
-                          >
-                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <Button 
-                        type="submit" 
-                        className="w-full h-14 bg-gradient-to-r from-purple-500 via-cyan-500 to-pink-500 hover:from-purple-600 hover:via-cyan-600 hover:to-pink-600 transition-all duration-500 hover:scale-105 shadow-2xl hover:shadow-purple-500/50 text-lg font-semibold rounded-xl"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <>
-                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
-                            Accessing Portal...
-                          </>
-                        ) : (
-                          'Enter Quantum Realm'
-                        )}
-                      </Button>
-                    </form>
-                  </TabsContent>
-
-                  <TabsContent value="signup" className="space-y-6 mt-8">
-                    <form onSubmit={handleSignUp} className="space-y-6">
-                      <div className="space-y-3">
-                        <Label htmlFor="signup-name" className="text-white/90 font-medium text-lg">Human Identity</Label>
-                        <div className="relative group">
-                          <User className="absolute left-4 top-4 h-5 w-5 text-white/40 group-focus-within:text-cyan-400 transition-colors" />
-                          <Input
-                            id="signup-name"
-                            type="text"
-                            placeholder="Your earthly name"
-                            value={signUpData.fullName}
-                            onChange={(e) => setSignUpData({...signUpData, fullName: e.target.value})}
-                            className="pl-12 h-14 bg-black/20 border border-white/20 text-white placeholder:text-white/40 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition-all duration-300 rounded-xl text-lg"
-                            required
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <Label htmlFor="signup-email" className="text-white/90 font-medium text-lg">Quantum Email</Label>
-                        <div className="relative group">
-                          <Mail className="absolute left-4 top-4 h-5 w-5 text-white/40 group-focus-within:text-cyan-400 transition-colors" />
-                          <Input
-                            id="signup-email"
-                            type="email"
-                            placeholder="your@quantum.email"
-                            value={signUpData.email}
-                            onChange={(e) => setSignUpData({...signUpData, email: e.target.value})}
-                            className="pl-12 h-14 bg-black/20 border border-white/20 text-white placeholder:text-white/40 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition-all duration-300 rounded-xl text-lg"
-                            required
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <Label htmlFor="signup-password" className="text-white/90 font-medium text-lg">Neural Key</Label>
-                        <div className="relative group">
-                          <Lock className="absolute left-4 top-4 h-5 w-5 text-white/40 group-focus-within:text-cyan-400 transition-colors" />
-                          <Input
-                            id="signup-password"
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Create your neural key"
-                            value={signUpData.password}
-                            onChange={(e) => setSignUpData({...signUpData, password: e.target.value})}
-                            className="pl-12 pr-12 h-14 bg-black/20 border border-white/20 text-white placeholder:text-white/40 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition-all duration-300 rounded-xl text-lg"
-                            required
-                            minLength={8}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-4 top-4 text-white/40 hover:text-white/80 transition-colors duration-300"
-                          >
-                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        <Label htmlFor="signup-confirm" className="text-white/90 font-medium text-lg">Confirm Neural Key</Label>
-                        <div className="relative group">
-                          <Lock className="absolute left-4 top-4 h-5 w-5 text-white/40 group-focus-within:text-cyan-400 transition-colors" />
-                          <Input
-                            id="signup-confirm"
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Confirm your neural key"
-                            value={signUpData.confirmPassword}
-                            onChange={(e) => setSignUpData({...signUpData, confirmPassword: e.target.value})}
-                            className="pl-12 h-14 bg-black/20 border border-white/20 text-white placeholder:text-white/40 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition-all duration-300 rounded-xl text-lg"
-                            required
-                          />
-                        </div>
-                      </div>
-                      
-                      <Button 
-                        type="submit" 
-                        className="w-full h-14 bg-gradient-to-r from-cyan-500 via-pink-500 to-purple-500 hover:from-cyan-600 hover:via-pink-600 hover:to-purple-600 transition-all duration-500 hover:scale-105 shadow-2xl hover:shadow-cyan-500/50 text-lg font-semibold rounded-xl"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <>
-                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
-                            Creating Portal...
-                          </>
-                        ) : (
-                          'Join Quantum Dimension'
-                        )}
-                      </Button>
-                    </form>
-                  </TabsContent>
-
-                  <TabsContent value="reset" className="space-y-6 mt-8">
-                    <form onSubmit={handleReset} className="space-y-6">
-                      <div className="space-y-3">
-                        <Label htmlFor="reset-email" className="text-white/90 font-medium text-lg">Quantum Email</Label>
-                        <div className="relative group">
-                          <Mail className="absolute left-4 top-4 h-5 w-5 text-white/40 group-focus-within:text-pink-400 transition-colors" />
-                          <Input
-                            id="reset-email"
-                            type="email"
-                            placeholder="your@quantum.email"
-                            value={resetEmail}
-                            onChange={(e) => setResetEmail(e.target.value)}
-                            className="pl-12 h-14 bg-black/20 border border-white/20 text-white placeholder:text-white/40 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/50 transition-all duration-300 rounded-xl text-lg"
-                            required
-                          />
-                        </div>
-                      </div>
-                      
-                      <Button 
-                        type="submit" 
-                        className="w-full h-14 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 hover:from-pink-600 hover:via-purple-600 hover:to-cyan-600 transition-all duration-500 hover:scale-105 shadow-2xl hover:shadow-pink-500/50 text-lg font-semibold rounded-xl"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <>
-                            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
-                            Sending Portal Key...
-                          </>
-                        ) : (
-                          'Send Recovery Portal'
-                        )}
-                      </Button>
-                    </form>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-
-            <p className="text-center text-white/50 text-sm mt-6">
-              By entering the quantum realm, you agree to transcend{' '}
-              <a href="#" className="text-purple-400 hover:text-purple-300 transition-colors">reality</a>
-              {' '}and accept{' '}
-              <a href="#" className="text-cyan-400 hover:text-cyan-300 transition-colors">cosmic responsibility</a>
-            </p>
+            <span className="text-2xl font-bold text-white">QuantumVault</span>
           </div>
+
+          <Card className="bg-slate-800 border-slate-700 shadow-2xl">
+            <CardHeader className="space-y-1 text-center">
+              <CardTitle className="text-2xl font-bold text-white">
+                {isLogin ? 'Welcome Back' : 'Create Account'}
+              </CardTitle>
+              <CardDescription className="text-slate-400">
+                {isLogin 
+                  ? 'Sign in to access your secure vault' 
+                  : 'Join thousands protecting their digital identity'
+                }
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent className="space-y-6">
+              {error && (
+                <Alert className="bg-red-500/10 border-red-500/20">
+                  <AlertDescription className="text-red-400">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              {success && (
+                <Alert className="bg-green-500/10 border-green-500/20">
+                  <AlertDescription className="text-green-400">
+                    {success}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-300">Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                      placeholder="Enter your email"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-slate-300">Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-10 pr-12 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                      placeholder="Enter your password"
+                      required
+                      minLength={6}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {!isLogin && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-300">Confirm Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+                        placeholder="Confirm your password"
+                        required
+                        minLength={6}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 transition-all duration-200 hover:scale-[1.02]"
+                >
+                  {loading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Please wait...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <span>{isLogin ? 'Sign In' : 'Create Account'}</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </div>
+                  )}
+                </Button>
+              </form>
+
+              <div className="text-center">
+                <button
+                  onClick={() => {
+                    setIsLogin(!isLogin);
+                    setError('');
+                    setSuccess('');
+                  }}
+                  className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+                >
+                  {isLogin 
+                    ? "Don't have an account? Sign up" 
+                    : 'Already have an account? Sign in'
+                  }
+                </button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
